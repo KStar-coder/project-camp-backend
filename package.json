@@ -1,0 +1,22 @@
+{
+  "name": "projectmanagementplatform",
+  "version": "1.0.0",
+  "description": "a project management application ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "project",
+    "management",
+    "backend",
+    "API",
+    "creation"
+  ],
+  "author": "Kaustav Sharma",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "3.9.6"
+  }
+}
