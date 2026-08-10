@@ -25,7 +25,7 @@ const userSchema = new Schema
             },
             email: {
                 type: String,
-                required: true,
+                required: [true, "Email is required"],
                 unique: true,
                 lowercase: true,
                 trim: true
@@ -36,7 +36,7 @@ const userSchema = new Schema
             },
             password: {
                 type: String,
-                required: [true, "Password is required"]
+                required: [true, "Password is required"] // incase password is not given this message pops 
             },
             isEmailVerified: {
                 type: Boolean,
