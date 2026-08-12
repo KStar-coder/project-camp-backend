@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 
 
 const sendEmail = async (options) => {
+    // Step 1: Create a mail template
     const mailGenerator = new Mailgen({
         theme: "default",
         product: {
@@ -14,6 +15,7 @@ const sendEmail = async (options) => {
     const emailTextual = mailGenerator.generatePlainText(options.mailGenContent)
     const emailHTML = mailGenerator.generate(options.mailGenContent)
 
+    // Step 2: Design a mail transporter by giving network configurations
     const transporter = nodemailer.createTransport({
         host: process.env.MAILTRAP_SMTP_HOST,
         port: process.env.MAILTRAP_SMTP_PORT,
@@ -23,6 +25,7 @@ const sendEmail = async (options) => {
         }
     })
 
+    // Step 3: Create the mail content object
     const mail = {
         from: "mail.taskmanager@example.com",
         to: options.email,
@@ -31,6 +34,7 @@ const sendEmail = async (options) => {
         html: emailHTML
     }
 
+    // Step 4: Send the mail
     try {
         await transporter.sendMail(mail);
     } catch (error) {
