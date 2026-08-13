@@ -88,7 +88,7 @@ userSchema.pre("save", async function (next) {
 // Adding properties in the userSchema 
 
 // password validation while logging in
-userSchema.methods.isPasswordCorrect = function (password) {
+userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
 
