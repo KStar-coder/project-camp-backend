@@ -76,13 +76,12 @@ const userSchema = new Schema
  * the function takes (next) as a parameter to execute whatever is left to be executed after this function
  */
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
     // if the password field is not modified, will skip this encryption and move to the next steps
     if (!this.isModified("password")) {
-        return next();
+        return;
     }
-    this.password = await bcrypt.hash(this.password, 10)
-    next();
+    this.password = await bcrypt.hash(this.password, 10);
 })
 
 // Adding properties in the userSchema 

@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from '../utils/api-response.js'
 import { ApiError } from '../utils/api-error.js'
 import { asyncHandler } from '../utils/async-handler.js';
+import mailgen from "mailgen";
 import { emailVerificationMailgenContent, sendEmail } from "../utils/mail.js";
 
 
@@ -25,10 +26,17 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { email, username, password, role } = req.body;
 
-    // find if theres an existing user having the same username or email
-    const existingUser = User.findOne({
-        $or: [{ username }, { email }]
-    })
+    const normalizedEmail = email?.trim().toLowerCase();
+    const normalizedUsername = username?.trim();
+
+    if (!normalizedEmail || !normalizedUsername || !password) {
+        throw new ApiError(400, "Email, username and password are required", []);
+    }
+
+    // find if there's an existing user having the same username or email
+    const existingUser = await User.findOne({
+        $or: [{ username: normalizedUsername }, { email: normalizedEmail }]
+    });
 
     if (existingUser) {
         throw new ApiError(409, "User with email or username already exists", []);
@@ -36,9 +44,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // if user is not found, store it in the DB 
     const user = await User.create({
-        email,
+        email: normalizedEmail,
         password,
-        username,
+        username: normalizedUsername,
         isEmailVerified: false
     });
 

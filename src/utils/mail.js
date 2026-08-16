@@ -4,16 +4,16 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (options) => {
     // Step 1: Create a mail template
-    const mailGenerator = new Mailgen({
+    const mailGenerator = new mailgen({
         theme: "default",
         product: {
             name: "Task Manager",
             link: "https://taskmanagerlink.com",
         }
-    })
+    });
 
-    const emailTextual = mailGenerator.generatePlainText(options.mailGenContent)
-    const emailHTML = mailGenerator.generate(options.mailGenContent)
+    const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
+    const emailHTML = mailGenerator.generate(options.mailgenContent);
 
     // Step 2: Design a mail transporter by giving network configurations
     const transporter = nodemailer.createTransport({
