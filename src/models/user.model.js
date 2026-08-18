@@ -100,13 +100,13 @@ userSchema.methods.generateAccessToken = function () {
             username: this.username
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: ACCESS_TOKEN_EXPIRY }
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
     );
 }
 
 // generate refresh token
 userSchema.methods.generateRefreshToken = function () {
-    jwt.sign(
+    return jwt.sign(
         {
             _id: this._id,
         },
