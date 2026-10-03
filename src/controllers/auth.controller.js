@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from '../utils/api-response.js'
 import { ApiError } from '../utils/api-error.js'
 import { asyncHandler } from '../utils/async-handler.js';
-import mailgen from "mailgen";
+import crypto from "crypto";
 import { emailVerificationMailgenContent, forgotPasswordMailgenContent, sendEmail } from "../utils/mail.js";
 import jwt from "jsonwebtoken";
 
@@ -64,7 +64,7 @@ const registerUser = asyncHandler(async (req, res) => {
             subject: "Please verify your email",
             mailgenContent: emailVerificationMailgenContent(
                 user.username,
-                `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
+                `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unHashedToken}`
             ),
 
         }
@@ -211,7 +211,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 const resendEmailVerification = asyncHandler(async (req, res) => {
 
     // it can only be set by the user who is logged in 
-    const user = await user.findById(req.user?._id)
+    const user = await User.findById(req.user?._id)
 
     if (!user) {
         throw new ApiError(404, "User does not exist");
@@ -236,7 +236,7 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
             subject: "Please verify your email",
             mailgenContent: emailVerificationMailgenContent(
                 user.username,
-                `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
+                `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unHashedToken}`
             ),
 
         }
@@ -261,7 +261,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             throw new ApiError(401, "Invalid refresh token");
         }
 
-        if (!incomingRefreshToken !== user?.refreshToken) {
+        if (incomingRefreshToken !== user?.refreshToken) {
             throw new ApiError(401, "Refresh token is expired");
         }
 
