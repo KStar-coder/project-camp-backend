@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import { removeStoredFiles } from "./utils/file.js";
+import noteRouter from "./routes/note.routes.js"
 const app = express();
 
 // basic config 
@@ -27,8 +28,9 @@ import taskRouter from "./routes/task.routes.js";
 
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/auth", authrouter);
-app.use("/api/v1/projects", projectRouter);                      // above the 404 handler
+app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/notes", noteRouter);
 
 app.use((req, res, next) => {
     next(new ApiError(404, `Route ${req.originalUrl} not found`));

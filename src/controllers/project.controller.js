@@ -2,10 +2,14 @@ import mongoose from "mongoose";
 import { Project } from "../models/project.model.js";
 import { ProjectMember } from "../models/project-member.model.js";
 import { User } from "../models/user.model.js";
+import { Task } from "../models/task.model.js";
+import { SubTask } from "../models/subtask.model.js";
+import { Note } from "../models/note.model.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { UserRolesEnum } from "../utils/constants.js";
+import { removeStoredFiles } from "../utils/file.js";
 
 /**
  * A project must always keep at least one admin, otherwise nobody can manage it.
@@ -125,7 +129,7 @@ const getProjectById = asyncHandler(async (req, res) => {
 
 // PUT /api/v1/projects/:projectId  -> admin only
 const updateProject = asyncHandler(async (req, res) => {
-    const { name, description } = req.body;
+    const { name, description } = req.body ?? {};
 
     const updates = {};
     if (name !== undefined) updates.name = name;
@@ -162,7 +166,12 @@ const deleteProject = asyncHandler(async (req, res) => {
 
     // clean up everything that belongs to the project
     await ProjectMember.deleteMany({ project: projectId });
-    // TODO (steps 4 and 5): also delete this project's tasks, subtasks and notes here
+    // tasks: delete their attachment files from disk, then the subtasks and the tasks
+    const tasks = await Task.find({ project: projectId }).select("attachments");
+    await removeStoredFiles(tasks.flatMap((task) => task.attachments));
+    await SubTask.deleteMany({ project: projectId });
+    await Task.deleteMany({ project: projectId });
+    await Note.deleteMany({ project: projectId });
 
     return res
         .status(200)
@@ -272,6 +281,12 @@ const removeProjectMember = asyncHandler(async (req, res) => {
     if (membership.role === UserRolesEnum.ADMIN) {
         await ensureAnotherAdminExists(projectId);
     }
+
+    // tasks assigned to the removed member become unassigned
+    await Task.updateMany(
+        { project: projectId, assignedTo: userId },
+        { $unset: { assignedTo: 1 } }
+    );
 
     await membership.deleteOne();
 
